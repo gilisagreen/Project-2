@@ -4,9 +4,7 @@ var backPiece = [];
 
 window.onload = function() {
     puzzle =  $$("#puzzlearea div");
-    var row = 0;
-    var right = 0;
-    var top = 0;
+    var row = 0, right = 0, top = 0;
 
   for (var i=0;i<puzzle.length;i++){
         puzzle[i].addClassName("puzzlepiece");
@@ -23,154 +21,149 @@ window.onload = function() {
     }
 
   var freemove = document.createElement("div");
-   $("puzzlearea").appendChild(freemove);
-   freemove.addClassName("puzzlepiece");
-    freemove.style.float = "left";
-   freemove.style.background = "none";
-   freemove.style.border = "2px solid white";
+   $("puzzlearea").appendChild(freemove); //add a div that acts as the free move 
+   blankP(freemove);
 
+
+   puzzle = $$("#puzzlearea div"); // "reassign" the array puzzle with the new div added
    $("shufflebutton").observe('click', shufflePuzzle);
    movepiece();
 };
 
+// the function blankP is used to create the blank background for the space that represents the available move
+var blankP = function(el){
+  el.removeClassName("movablepiece");
+  el.addClassName("puzzlepiece");
+  el.style.float = "left";
+  el.style.backgroundImage = "none";
+  el.style.border = "2px solid white";
+};
+
+//the background_Position function is used to place the correct background piece to the number on the puzzlepiece.
+var background_Position = function(piece , item){
+  piece.style.backgroundPosition = "-"+backPiece[item-1][0]+"px -"+backPiece[item-1][1]+"px";
+};
+
+// the regularP function is used to apply the background to a numbered piece. 
+var regularP = function(p){
+      p.addClassName("puzzlepiece");
+      p.style.border = "2px solid black";
+      p.style.backgroundImage = "url(background.jpg)";
+      p.style.backgroundSize = "400px 400px";
+};
+
+//the shuffluePuzzle function is used to shullfe each puzzle on the page.
 function shufflePuzzle(){
-		var numArray = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
-		var puzzlep = $$("#puzzlearea div");
-		for (var i=puzzlep.length; i>0; i){
-			var j = Math.floor(Math.random() * i);
-			var x = numArray[--i];
-			var test = numArray[j];
-			if(test == "0") { 
-				puzzlep[i].addClassName("puzzlepiece");
-	 			puzzlep[i].style.backgroundColor = "white";
-        puzzlep[i].style.background = "none";
-	 			puzzlep[i].style.border = "2px solid white";
-	 			puzzlep[i].innerHTML = "";
+	var numArray = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+	for (var i=puzzle.length; i>0; i){
+		var j = Math.floor(Math.random() * i);
+		var x = numArray[--i];
+		var test = numArray[j];
+		if(test == "0") { 
+			puzzle[i].addClassName("puzzlepiece");
+	 		blankP(puzzle[i]);
+	 		puzzle[i].innerHTML = "";
 					}
-			else{
-      puzzlep[i].innerHTML = numArray[j];
-      puzzlep[i].addClassName("puzzlepiece");
-      puzzlep[i].style.border = "2px solid black";
-      puzzlep[i].style.backgroundImage = "url(background.jpg)";
-      puzzlep[i].style.backgroundSize = "400px 400px";
-      puzzlep[i].style.backgroundPosition = "-"+backPiece[test-1][0]+"px -"+backPiece[test-1][1]+"px";
+		else{
+     			puzzle[i].innerHTML = numArray[j];
+      			regularP(puzzle[i]);
+      			background_Position(puzzle[i], test);
           }
 			numArray[j] = x;
     }
-  mopiece();
+  	mopiece();
    }
 
+//this function places the class movablepiece
+var movePA = function(piece){
+  puzzle[piece].addClassName("movablepiece");
+};
 
+//the movepiece function is used to actually move the piece that is clicked on into the space.
 var movepiece = function(){
     var move = this.innerHTML;
-    var puzzlep = $$("#puzzlearea div");
     var yon = this.hasClassName('movablepiece');
     var blank = 0;
     if (yon){
-      for (var i=0;i<puzzlep.length;i++){
-        blank = puzzlep[i].innerHTML;
-         if (puzzlep[i].innerHTML == ""){
-          puzzlep[i].innerHTML = move;
-          this.innerHTML = blank;
+      	for (var i=0;i<puzzle.length;i++){
+        	blank = puzzle[i].innerHTML;
+         	if (puzzle[i].innerHTML == ""){
+          		puzzle[i].innerHTML = move;
+          		this.innerHTML = blank;
 
-          puzzlep[i].style.border = "2px solid black";
-          puzzlep[i].style.backgroundImage = "url(background.jpg)";
-          puzzlep[i].style.backgroundSize = "400px 400px";  
-          
-        
-        this.style.backgroundImage = "none";
-        this.style.border = "2px solid white";
+          		regularP(puzzle[i]);
+          		blankP(this);
 
-        mopiece();
-        puzzlep[i].style.backgroundPosition = "-"+backPiece[move-1][0]+"px -"+backPiece[move-1][1]+"px";
-      }
-    
-     }
-  
+        		 mopiece();
+        		 background_Position(puzzle[i], move);
+      }    
+     } 
    }
          };
 
-
+//the function mopiece is used to calculate which pieces are beside the space and are able to move, thus applying the 'movablepiece' class
 var mopiece = function(){
-	var puzzlep = $$("#puzzlearea div");
-	for (var i=0;i<puzzlep.length;i++){
-		puzzlep[i].removeClassName("movablepiece");
-	}
-		for (var i=0; i<puzzlep.length; i++){
+	for (var i=0;i<puzzle.length;i++){
+		puzzle[i].removeClassName("movablepiece");	}
+		  for (var i=0; i<puzzle.length; i++){
+  			if (puzzle[i].innerHTML == ""){         
+ 				  puzzle[i].removeClassName("movablepiece");
 
-  			if (puzzlep[i].innerHTML == ""){
-          
-  				  puzzlep[i].removeClassName("movablepiece");
-          
   				switch(i){
   					case 0:
-  						puzzlep[i+1].addClassName("movablepiece");
-  						puzzlep[i+4].addClassName("movablepiece");
-              
-  						break;
+  						movePA(i+1);
+  						movePA(i+4);
+              					break;
   					case 1:
   					case 2:
-  						puzzlep[i-1].addClassName("movablepiece");
-  						puzzlep[i+1].addClassName("movablepiece");
-  						puzzlep[i+4].addClassName("movablepiece");
-              
+  						movePA(i-1);
+  						movePA(i+1);
+        					movePA(i+4);
   						break;
   					case 3:
-  						puzzlep[i-1].addClassName("movablepiece");
-  						puzzlep[i+4].addClassName("movablepiece");
-              
+  						movePA(i-1);
+  						movePA(i+4);
   						break;
   					case 4:
-  						puzzlep[i-4].addClassName("movablepiece");
-  						puzzlep[i+4].addClassName("movablepiece");
-  						puzzlep[i+1].addClassName("movablepiece");
-              
+  						movePA(i-4);
+  						movePA(i+4);
+  						movePA(i+1);
   						break;
   					case 5:
   					case 6:
   					case 9:
   					case 10:
-  						puzzlep[i-4].addClassName("movablepiece");
-  						puzzlep[i+4].addClassName("movablepiece");
-  						puzzlep[i+1].addClassName("movablepiece");
-  						puzzlep[i-1].addClassName("movablepiece");
-  						
-              break;
+  						movePA(i-4);
+  						movePA(i+4);
+  						movePA(i+1);
+  						movePA(i-1);
+              					break;
   					case 7: 
   					case 11:
-  						puzzlep[i-4].addClassName("movablepiece");
-  						puzzlep[i+4].addClassName("movablepiece");
-  						puzzlep[i-1].addClassName("movablepiece");
-  						
-              break;
+  						movePA(i-4);
+  						movePA(i+4);
+  						movePA(i-1);
+              					break;
   					case 8:
-  						puzzlep[i-4].addClassName("movablepiece");
-  						puzzlep[i+1].addClassName("movablepiece");
-  						puzzlep[i+4].addClassName("movablepiece");
-              
+  						movePA(i-4);
+  						movePA(i+1);
+  						movePA(i+4);
   						break;
   					case 12:
-  						puzzlep[i-4].addClassName("movablepiece");
-  						puzzlep[i+1].addClassName("movablepiece");
-              
+  						movePA(i-4);
+  						movePA(i+1);
   						break;
   					case 13: 
   					case 14:
-  						puzzlep[i-4].addClassName("movablepiece");
-  						puzzlep[i-1].addClassName("movablepiece");
-  						puzzlep[i+1].addClassName("movablepiece");
-              
+  						movePA(i-4);
+  						movePA(i-1);
+  						movePA(i+1);
   						break;
   					case 15:
-  						puzzlep[i-4].addClassName("movablepiece");
-  						puzzlep[i-1].addClassName("movablepiece");
-              
+  						movePA(i-4);
+  						movePA(i-1);
   						break;
-  					}
-
-        	
+  					}       	
   		}
-
-      puzzlep[i].observe('click', movepiece); }  
-
+      			puzzle[i].observe('click', movepiece); }  
   	}	;
